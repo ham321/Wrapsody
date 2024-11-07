@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.744890136073-vd5ptc8qvb0321b98oqshruqvlq7c0gj</string>
+			</array>
+		</dict>
+	</array>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>GIDClientID</key>
+	<string>744890136073-vd5ptc8qvb0321b98oqshruqvlq7c0gj.apps.googleusercontent.com</string>
+	<key>NSAllowsArbitraryLoads</key>
+	<true/>
+	<key>StorefrontAccessToken</key>
+	<string>$(STOREFRONT_ACCESS_TOKEN)</string>
+	<key>StorefrontDomain</key>
+	<string>$(STOREFRONT_DOMAIN)</string>
+	<key>UIApplicationSceneManifest</key>
+	<dict>
+		<key>UIApplicationSupportsMultipleScenes</key>
+		<false/>
+		<key>UISceneConfigurations</key>
+		<dict>
+			<key>UIWindowSceneSessionRoleApplication</key>
+			<array>
+				<dict>
+					<key>UISceneConfigurationName</key>
+					<string>Default</string>
+					<key>UISceneDelegateClassName</key>
+					<string>$(PRODUCT_MODULE_NAME).SceneDelegate</string>
+				</dict>
+			</array>
+		</dict>
+	</dict>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+	</array>
+</dict>
+</plist>

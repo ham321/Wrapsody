@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>744890136073-vd5ptc8qvb0321b98oqshruqvlq7c0gj.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.744890136073-vd5ptc8qvb0321b98oqshruqvlq7c0gj</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCdQgvZ_mR7YQQXOP_O_XRR8YWevB9p-0s</string>
+	<key>GCM_SENDER_ID</key>
+	<string>744890136073</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.Shop-Wrapsody</string>
+	<key>PROJECT_ID</key>
+	<string>wrapsody-1e5d5</string>
+	<key>STORAGE_BUCKET</key>
+	<string>wrapsody-1e5d5.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:744890136073:ios:63022099c6931baffeaad8</string>
+</dict>
+</plist>
