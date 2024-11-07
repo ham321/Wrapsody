@@ -14,7 +14,7 @@ struct FAQItem: Identifiable {
 }
 
 let sampleFAQs = [
-    FAQItem(question: "How do I contact support for help?", answer: "To contact support you can email us at, Hamiltonncenter@gmail.com for any questions or concerns")
+    FAQItem(question: "How do I contact support for help?", answer: "To contact support you can email us at, Hamiltonncenter@gmail.com for any questions or concerns.")
     // Add more FAQ items as needed
 ]
 
