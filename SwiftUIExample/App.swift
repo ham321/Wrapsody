@@ -20,7 +20,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         // Initialize Firebase
         FirebaseApp.configure()
-        
+
         // Initialize Google Sign-In
         GIDSignIn.sharedInstance.restorePreviousSignIn() // Restore previous sign-in if available
 
@@ -31,10 +31,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 
         // Set up push notifications
         setupPushNotifications(application)
-        
+
         return true
     }
-    
+
     private func setupPushNotifications(_ application: UIApplication) {
         // Request notification permissions
         UNUserNotificationCenter.current().delegate = self
@@ -51,7 +51,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
                 print("Notification permissions not granted.")
             }
         }
-        
+
         // Set Messaging delegate
         Messaging.messaging().delegate = self
         print("Set Messaging delegate")
@@ -82,12 +82,17 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     }
 
     // MARK: - Push Notifications
-    
+
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        // Convert device token to a hex string
+        let tokenParts = deviceToken.map { String(format: "%02.2hhx", $0) }
+        let tokenString = tokenParts.joined()
+
+        print("Device Token: \(tokenString)") // Print the formatted device token
+
         // Pass device token to Firebase
         Messaging.messaging().apnsToken = deviceToken
-        print("APNs token received: \(deviceToken)")
-        
+
         // Fetch and print FCM token
         Messaging.messaging().token { token, error in
             if let error = error {
@@ -95,46 +100,60 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             } else if let token = token {
                 print("Firebase registration token: \(token)")
                 self.postTokenToServer(token)
+
+                // Subscribe to the "Wrapsody" topic
+                self.subscribeToTopic("Wrapsody")
             }
         }
     }
-    
+
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         print("Failed to register for remote notifications: \(error.localizedDescription)")
     }
-    
+
     // MARK: - UNUserNotificationCenterDelegate
-    
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         // Handle push notification when the app is in the foreground
         completionHandler([.alert, .sound, .badge])
     }
-    
+
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         // Handle response to the notification
         completionHandler()
     }
-    
+
     // MARK: - MessagingDelegate
-    
+
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
         guard let fcmToken = fcmToken else {
             print("Failed to fetch FCM registration token.")
             return
         }
-        
+
         print("Firebase registration token: \(fcmToken)")
         // Send the token to your server or save it as needed
 
         // Optionally, notify parts of your app about the token
         NotificationCenter.default.post(name: Notification.Name("FCMTokenReceived"), object: nil, userInfo: ["token": fcmToken])
     }
-    
+
     // MARK: - Helper Methods
-    
+
     private func postTokenToServer(_ token: String) {
         // TODO: Implement the logic to send the token to your server
         print("Posting token to server: \(token)")
+    }
+
+    // Method to subscribe to the topic "Wrapsody"
+    private func subscribeToTopic(_ topic: String) {
+        Messaging.messaging().subscribe(toTopic: topic) { error in
+            if let error = error {
+                print("Error subscribing to topic \(topic): \(error.localizedDescription)")
+            } else {
+                print("Successfully subscribed to topic \(topic)")
+            }
+        }
     }
 }
 
