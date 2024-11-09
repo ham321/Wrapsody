@@ -21,23 +21,22 @@ struct Order: Identifiable {
 
 
 // MARK: - Order ViewModel
-// MARK: - Order ViewModel
 class OrderViewModel: ObservableObject {
     @Published var orders: [Order] = []
-    
+
     init() {
         fetchOrders()
     }
-    
+
     func fetchOrders() {
         guard let customerAccessToken = UserDefaults.standard.string(forKey: "customerAccessToken") else {
             print("Customer access token not found.")
             return
         }
-        
+
         CartManager.shared.fetchPastOrders(customerAccessToken: customerAccessToken) { [weak self] fetchedOrders in
             guard let self = self else { return }
-            
+
             if let fetchedOrders = fetchedOrders {
                 self.orders = fetchedOrders.map { order in
                     let lineItems = order.lineItems.edges.compactMap { edge in
@@ -49,7 +48,7 @@ class OrderViewModel: ObservableObject {
                             price: "\(node.variant?.price.amount ?? Decimal(0)) \(node.variant?.price.currencyCode.rawValue ?? "USD")"
                         )
                     }
-                    
+
                     return Order(
                         id: UUID(),
                         date: order.processedAt,
@@ -72,78 +71,90 @@ class OrderViewModel: ObservableObject {
 // MARK: - Order History View
 struct OrderHistoryView: View {
     @StateObject private var viewModel = OrderViewModel()
-    
-    var body: some View {
-        List(viewModel.orders) { order in
-            VStack(alignment: .leading, spacing: 10) {
-                // Order Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Order #: \(order.orderName)")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
-                        Text(order.date, style: .date) // Display date in a more user-friendly format
-                            .font(.caption)
-                            .foregroundColor(.gray)
-                        Text("Status: \(order.fulfillmentStatus)") // Display fulfillment status
-                            .font(.caption)
-                            .foregroundColor(.blue) // Style it accordingly
-                    }
-                    Spacer()
-                }
-                .padding(.vertical, 12)
-                .padding(.horizontal, 8)
-                .background(Color.white)
-                .cornerRadius(8)
-                .shadow(radius: 2)
 
-                Divider() // Divider for a receipt-like look
-                
-                // Display Line Items
-                VStack(alignment: .leading, spacing: 8) {
-                    ForEach(order.lineItems) { lineItem in
+    var body: some View {
+        VStack {
+            if viewModel.orders.isEmpty {
+                // No orders yet message
+                Text("No orders yet. Go to store to place an order.")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.gray)
+                    .padding()
+                    .multilineTextAlignment(.center)
+            } else {
+                List(viewModel.orders) { order in
+                    VStack(alignment: .leading, spacing: 10) {
+                        // Order Header
                         HStack {
-                            VStack(alignment: .leading) {
-                                Text(lineItem.title)
-                                    .font(.body)
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Order #: \(order.orderName)")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
                                     .foregroundColor(.primary)
-                                Text("Qty: \(lineItem.quantity)")
+                                Text(order.date, style: .date) // Display date in a more user-friendly format
                                     .font(.caption)
-                                    .foregroundColor(.secondary)
+                                    .foregroundColor(.gray)
+                                Text("Status: \(order.fulfillmentStatus)") // Display fulfillment status
+                                    .font(.caption)
+                                    .foregroundColor(.blue) // Style it accordingly
                             }
                             Spacer()
-                            Text(lineItem.price)
-                                .font(.body)
-                                .foregroundColor(.blue)
-                                .multilineTextAlignment(.trailing)
                         }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 8)
+                        .background(Color.white)
+                        .cornerRadius(8)
+                        .shadow(radius: 2)
+
+                        Divider() // Divider for a receipt-like look
+
+                        // Display Line Items
+                        VStack(alignment: .leading, spacing: 8) {
+                            ForEach(order.lineItems) { lineItem in
+                                HStack {
+                                    VStack(alignment: .leading) {
+                                        Text(lineItem.title)
+                                            .font(.body)
+                                            .foregroundColor(.primary)
+                                        Text("Qty: \(lineItem.quantity)")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    Spacer()
+                                    Text(lineItem.price)
+                                        .font(.body)
+                                        .foregroundColor(.blue)
+                                        .multilineTextAlignment(.trailing)
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
+
+                        // Total Amount
+                        HStack {
+                            Spacer()
+                            Text("Total: \(order.totalAmount)")
+                                .font(.headline)
+                                .foregroundColor(.green)
+                        }
+                        .padding(.top, 8)
+
+                        Divider()
+                            .padding(.top, 4) // Footer-like separator
                     }
+                    .listRowSeparator(.hidden)
+                    .padding(.horizontal, 8)
+                    .background(Color(UIColor.systemBackground))
+                    .cornerRadius(8)
+                    .shadow(radius: 1)
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 4)
-
-                // Total Amount
-                HStack {
-                    Spacer()
-                    Text("Total: \(order.totalAmount)")
-                        .font(.headline)
-                        .foregroundColor(.green)
-                }
-                .padding(.top, 8)
-
-                Divider()
-                    .padding(.top, 4) // Footer-like separator
+                .navigationTitle("Order History") // Set the navigation title
+                .background(Color(UIColor.systemGray6))
+                .listStyle(InsetGroupedListStyle())
             }
-            .listRowSeparator(.hidden)
-            .padding(.horizontal, 8)
-            .background(Color(UIColor.systemBackground))
-            .cornerRadius(8)
-            .shadow(radius: 1)
-            .padding(.vertical, 4)
         }
-        .navigationTitle("Order History") // Set the navigation title
-        .background(Color(UIColor.systemGray6))
-        .listStyle(InsetGroupedListStyle())
     }
 }
 
@@ -156,4 +167,3 @@ struct OrderHistoryView_Previews: PreviewProvider {
         }
     }
 }
-  

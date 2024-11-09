@@ -24,7 +24,6 @@
 		134CF62A2CDD846C00144938 /* cash.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 134CF6282CDD846C00144938 /* cash.mp3 */; };
 		134CF62C2CDD8AD500144938 /* amber.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 134CF62B2CDD8AD500144938 /* amber.mp3 */; };
 		134CF62D2CDD8AD500144938 /* amber.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 134CF62B2CDD8AD500144938 /* amber.mp3 */; };
-		13995CE52CC749B2007FFC29 /* SaveForLaterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13995CE42CC749B2007FFC29 /* SaveForLaterView.swift */; };
 		13B701352CC3F4E500E35D05 /* CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13B701342CC3F4E500E35D05 /* CollectionView.swift */; };
 		13BF7B2E2CC374D700D31638 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 13BF7B2D2CC374D700D31638 /* FirebaseAnalytics */; };
 		13BF7B302CC374D700D31638 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 13BF7B2F2CC374D700D31638 /* FirebaseAuth */; };
@@ -97,7 +96,6 @@
 		134CF6282CDD846C00144938 /* cash.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = cash.mp3; sourceTree = "<group>"; };
 		134CF62B2CDD8AD500144938 /* amber.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = amber.mp3; sourceTree = "<group>"; };
 		136F8D8D2CC37D0E00CCFCB8 /* Wrapsody.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Wrapsody.entitlements; sourceTree = "<group>"; };
-		13995CE42CC749B2007FFC29 /* SaveForLaterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaveForLaterView.swift; sourceTree = "<group>"; };
 		13B701342CC3F4E500E35D05 /* CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollectionView.swift; sourceTree = "<group>"; };
 		13BF7B3B2CC3751700D31638 /* EulaSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EulaSettingsView.swift; sourceTree = "<group>"; };
 		13BF7B3C2CC3751700D31638 /* EulaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EulaView.swift; sourceTree = "<group>"; };
@@ -218,7 +216,6 @@
 				86C569C62B15DA2D00F26028 /* Assets.xcassets */,
 				6AC6C38F2B9089B60007EA2E /* ProductViewModel.swift */,
 				6ACED41A2B90A7FE00AC6947 /* CartView.swift */,
-				13995CE42CC749B2007FFC29 /* SaveForLaterView.swift */,
 				13BF7B3B2CC3751700D31638 /* EulaSettingsView.swift */,
 				13BF7B3C2CC3751700D31638 /* EulaView.swift */,
 				13BF7B3D2CC3751700D31638 /* FaqView.swift */,
@@ -425,7 +422,6 @@
 				86C569C52B15DA2B00F26028 /* CatalogView.swift in Sources */,
 				86C569ED2B15DB0A00F26028 /* StorefrontClient.swift in Sources */,
 				86C569C32B15DA2B00F26028 /* App.swift in Sources */,
-				13995CE52CC749B2007FFC29 /* SaveForLaterView.swift in Sources */,
 				86C569F22B15DC6F00F26028 /* StorefrontGraphQL.swift in Sources */,
 				6AC6C3902B9089B60007EA2E /* ProductViewModel.swift in Sources */,
 			);

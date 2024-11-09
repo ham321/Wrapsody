@@ -248,34 +248,7 @@ struct CartLines: View {
                 }
                 .padding(.bottom, 10)
 
-                // Buttons for Save for Later and Remove, aligned horizontally
-               /* HStack {
-                  Button(action: {
-                      itemToRemove = node.id
-                      showingConfirmationDialog = true
-                  }) {
-                      Text("Remove")
-                          .font(.subheadline)
-                          .foregroundColor(.red)
-                          .padding(.vertical, 5)
-                          .padding(.horizontal, 15)
-                          .cornerRadius(8)
-                  }
 
-                    Spacer()
-
-                  Button(action: {
-                      saveForLater(item: node)
-                  }) {
-                      Text("Save for Later")
-                          .font(.subheadline)
-                          .foregroundColor(.blue)
-                          .padding(.vertical, 5)
-                          .padding(.horizontal, 15)
-                          .cornerRadius(8)
-                  }
-
-                }*/
             }
             .padding([.leading, .trailing], 10)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -314,29 +287,8 @@ struct CartLines: View {
         }
     }
 
-    // Function to save item for later
-    private func saveForLater(item: BaseCartLine) {
-        // Save the item to savedItems and remove it from the cart
-        savedItems.insert(item.id)
-        cartManager.savedItems.append(item)
-        cartManager.removeItem(cartLineId: item.id) { cart in
-            cartManager.cart = cart
-            checkoutURL = cart?.checkoutUrl
-        }
-    }
+    
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

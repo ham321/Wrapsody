@@ -166,11 +166,7 @@ struct RootTabView: View {
             }
             .badge(Int(cartManager.cart?.totalQuantity ?? 0))
           
-          /*  SaveForLaterView(cartManager: cartManager) // Add SaveForLaterView here
-                               .tabItem {
-                                   Label("Saved", systemImage: "bookmark.fill") // Use an appropriate image
-                               }.badge(cartManager.savedItems.count > 0 ? cartManager.savedItems.count : 0) // Use 0 instead of nil for no badge
-               */
+
 
             // Pass userName to ProfileView
             ProfileView()

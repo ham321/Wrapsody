@@ -30,7 +30,6 @@ var cache: Storefront.Cart?
 
 public class CartManager: ObservableObject {
     let client: StorefrontClient = StorefrontClient()
-  @Published var savedItems: [BaseCartLine] = [] // Array to hold saved items
 
     static let shared = CartManager()
 
@@ -225,7 +224,6 @@ public class CartManager: ObservableObject {
             }
             completionHandler?(self.cart)
         })
-      print(savedItems)
     }
 
     func resetCart() {
