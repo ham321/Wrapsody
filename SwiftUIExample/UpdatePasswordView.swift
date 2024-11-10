@@ -1,4 +1,3 @@
-//
 //  UpdatePasswordView.swift
 //  Lost and Found
 //
@@ -17,6 +16,13 @@ struct UpdatePasswordView: View {
 
     var body: some View {
         VStack {
+            // App Logo
+            Image("appLogo") // Make sure "appLogo" matches the name of your image asset
+                .resizable()
+                .scaledToFit()
+                .frame(width: 150, height: 150) // Adjust size as needed
+                .padding(.bottom, 20)
+
             Text("Update Password")
                 .font(.largeTitle)
                 .padding()
@@ -57,7 +63,7 @@ struct UpdatePasswordView: View {
                 Text("Update Password")
                     .frame(minWidth: 0, maxWidth: .infinity)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color.wrapsodyGold)
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
@@ -67,7 +73,7 @@ struct UpdatePasswordView: View {
 
     private func updatePassword() {
         guard validatePasswords() else { return }
-        
+
         reauthenticateUser(currentPassword: currentPassword) { success in
             if success {
                 Auth.auth().currentUser?.updatePassword(to: newPassword) { error in

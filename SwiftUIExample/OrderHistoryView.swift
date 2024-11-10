@@ -6,7 +6,15 @@ struct LineItem: Identifiable {
     let title: String
     let quantity: Int
     let price: String
-    let imageUrl: String? // Add imageUrl property for the image URL
+    let imageUrl: String?
+
+    init(id: String, title: String, quantity: Int, price: Decimal, currencyCode: String, imageUrl: String?) {
+        self.id = id
+        self.title = title
+        self.quantity = quantity
+        self.price = "$\(Order.formatAmount(price)) \(currencyCode)"
+        self.imageUrl = imageUrl
+    }
 }
 
 // MARK: - Order Model
@@ -16,10 +24,32 @@ struct Order: Identifiable {
     let orderId: String
     let orderName: String
     let totalAmount: String
-    let subtotalAmount: String // Subtotal amount field
-    let totalShippingAmount: String // Shipping amount field
+    let subtotalAmount: String
+    let totalShippingAmount: String
     let fulfillmentStatus: String
     let lineItems: [LineItem]
+
+    init(id: UUID, date: Date, orderId: String, orderName: String, totalAmount: Decimal, subtotalAmount: Decimal, totalShippingAmount: Decimal, currencyCode: String, fulfillmentStatus: String, lineItems: [LineItem]) {
+        self.id = id
+        self.date = date
+        self.orderId = orderId
+        self.orderName = orderName
+        self.totalAmount = "$\(Order.formatAmount(totalAmount)) \(currencyCode)"
+        self.subtotalAmount = "$\(Order.formatAmount(subtotalAmount)) \(currencyCode)"
+        self.totalShippingAmount = "$\(Order.formatAmount(totalShippingAmount)) \(currencyCode)"
+        self.fulfillmentStatus = fulfillmentStatus
+        self.lineItems = lineItems
+    }
+
+    // Helper function to format Decimal amounts to two decimal places
+    static func formatAmount(_ amount: Decimal) -> String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        formatter.currencySymbol = ""
+        formatter.minimumFractionDigits = 2
+        formatter.maximumFractionDigits = 2
+        return formatter.string(from: NSDecimalNumber(decimal: amount)) ?? "0.00"
+    }
 }
 
 class CacheManager {
@@ -41,7 +71,7 @@ class CacheManager {
 // MARK: - OrderViewModel
 class OrderViewModel: ObservableObject {
     @Published var orders: [Order] = []
-    @Published var isLoading: Bool = true  // Track loading state
+    @Published var isLoading: Bool = true
 
     init() {
         fetchOrders()
@@ -56,8 +86,6 @@ class OrderViewModel: ObservableObject {
 
         CartManager.shared.fetchPastOrders(customerAccessToken: customerAccessToken) { [weak self] fetchedOrders in
             guard let self = self else { return }
-
-            // Set loading to false once data is fetched or on error
             self.isLoading = false
 
             if let fetchedOrders = fetchedOrders {
@@ -68,7 +96,8 @@ class OrderViewModel: ObservableObject {
                             id: node.variant?.id.rawValue ?? "Unknown ID",
                             title: node.title,
                             quantity: Int(node.quantity) ?? 0,
-                            price: "$\(node.variant?.price.amount ?? Decimal(0)) \(node.variant?.price.currencyCode.rawValue ?? "USD")",
+                            price: node.variant?.price.amount ?? Decimal(0),
+                            currencyCode: node.variant?.price.currencyCode.rawValue ?? "USD",
                             imageUrl: node.variant?.image?.url.absoluteString
                         )
                     }
@@ -78,9 +107,10 @@ class OrderViewModel: ObservableObject {
                         date: order.processedAt,
                         orderId: order.id.rawValue,
                         orderName: order.name ?? "Unknown Order Number",
-                        totalAmount: "$\(order.totalPrice.amount) \(order.totalPrice.currencyCode.rawValue ?? "USD")",
-                        subtotalAmount: "$\(order.subtotalPrice?.amount ?? Decimal(0)) \(order.subtotalPrice?.currencyCode.rawValue ?? "USD")",
-                        totalShippingAmount: "$\(order.totalShippingPrice.amount) \(order.totalShippingPrice.currencyCode.rawValue ?? "USD")",
+                        totalAmount: order.totalPrice.amount,
+                        subtotalAmount: order.subtotalPrice?.amount ?? Decimal(0),
+                        totalShippingAmount: order.totalShippingPrice.amount,
+                        currencyCode: order.totalPrice.currencyCode.rawValue ?? "USD",
                         fulfillmentStatus: order.fulfillmentStatus.rawValue ?? "Unknown Status",
                         lineItems: lineItems
                     )
@@ -140,7 +170,7 @@ struct OrderHistoryView: View {
                                     .foregroundColor(.gray)
                                 Text("Status: \(order.fulfillmentStatus)")
                                     .font(.body) // Larger font size for the status
-                                    .foregroundColor(.blue)
+                                    .foregroundColor(.wrapsodyPink)
                             }
 
                             Spacer()
@@ -194,7 +224,7 @@ struct OrderDetailView: View {
                     Spacer()
                     Text(order.fulfillmentStatus)
                         .fontWeight(.semibold)
-                        .foregroundColor(.blue)
+                        .foregroundColor(.wrapsodyPink)
                 }
 
                 Divider().padding(.vertical, 10)
@@ -273,7 +303,7 @@ struct OrderDetailView: View {
                         Text("Total: \(order.totalAmount.split(separator: " ").first ?? "")")
                             .font(.title3)
                             .fontWeight(.bold)
-                            .foregroundColor(.green)
+                            .foregroundColor(.wrapsodyGreen)
                     }
                 }
 
