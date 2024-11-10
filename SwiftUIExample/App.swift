@@ -160,22 +160,57 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
 @main
 struct SwiftUIExampleApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
     init() {
         // Initialize Shopify Checkout
         ShopifyCheckoutSheetKit.configure {
             $0.preloading.enabled = true
         }
-        
+
         // Set up custom appearance for UIBarButtonItem
-        UIBarButtonItem.appearance(whenContainedInInstancesOf: [UINavigationBar.self]).tintColor = .black
-        
-        // Set up Login navigation title to white
+        UIBarButtonItem.appearance(whenContainedInInstancesOf: [UINavigationBar.self]).tintColor = .wrapsodyGold
+
+        // Set up Login navigation title to blue with enhanced visibility
         let appearance = UINavigationBarAppearance()
-        appearance.configureWithTransparentBackground()
-        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.black]
+        appearance.configureWithTransparentBackground() // Make the navigation bar transparent initially
+
+        // Create a UIBlurEffect and apply it to the background
+        let blurEffect = UIBlurEffect(style: .systemMaterialLight) // You can choose other styles like .dark or .extraLight
+        let blurView = UIVisualEffectView(effect: blurEffect)
+        blurView.frame = CGRect(x: 0, y: 0, width: UIScreen.main.bounds.width, height: 44) // Adjust the height as needed
+
+        // Make the blur view a part of the navigation bar's background
+        appearance.backgroundEffect = blurEffect
+
+        // Set text color for the title
+        appearance.largeTitleTextAttributes = [.foregroundColor: UIColor.wrapsodyGold]
+        appearance.titleTextAttributes = [.foregroundColor: UIColor.wrapsodyGold]
+
         UINavigationBar.appearance().standardAppearance = appearance
-        UINavigationBar.appearance().scrollEdgeAppearance = appearance
+
+        // Configure the appearance when scrolling
+        let scrollEdgeAppearance = UINavigationBarAppearance()
+        scrollEdgeAppearance.configureWithTransparentBackground() // Ensure transparency when scrolling
+        scrollEdgeAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.wrapsodyGold]
+        scrollEdgeAppearance.titleTextAttributes = [.foregroundColor: UIColor.wrapsodyGold]
+
+        UINavigationBar.appearance().scrollEdgeAppearance = scrollEdgeAppearance
+
+        // Tab Bar Customization
+        let tabBarAppearance = UITabBarAppearance()
+
+        // Set Wrapsody gold color for tab bar items (selected and unselected)
+      tabBarAppearance.stackedLayoutAppearance.selected.iconColor = UIColor.wrapsodyGold
+      tabBarAppearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor.wrapsodyGold]
+      tabBarAppearance.stackedLayoutAppearance.normal.iconColor = UIColor.wrapsodyGold2
+      tabBarAppearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.wrapsodyGold2]
+
+      // Set background color for the tab bar
+      tabBarAppearance.backgroundColor = UIColor.wrapsodyBlue // Change to any color you prefer
+
+        // Set the appearance for both standard and scroll edge appearances
+        UITabBar.appearance().standardAppearance = tabBarAppearance
+        UITabBar.appearance().scrollEdgeAppearance = tabBarAppearance
     }
 
     var body: some Scene {

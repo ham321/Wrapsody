@@ -139,27 +139,39 @@ public class CartManager: ObservableObject {
       let query = Storefront.buildQuery { $0
           .customer(customerAccessToken: customerAccessToken) { $0
               .orders(first: 250) { $0.edges { $0.node { $0
-                  .id()
-                  .name()
-                  .processedAt()
+                  .id() // Order ID
+                  .name() // Order name/number
+                  .processedAt() // Date and time of order
                   .totalPrice { $0
-                      .amount()
-                      .currencyCode()
+                      .amount() // Total price
+                      .currencyCode() // Currency code (e.g. USD)
                   }
-                  .totalTax { $0 // Fetch total tax amount if available
-                      .amount()
-                      .currencyCode()
+                  .subtotalPrice { $0
+                                      .amount() // Subtotal of the order (before tax and shipping)
+                                      .currencyCode() // Currency code for subtotal
+                                  }
+                  .totalShippingPrice { $0
+                      .amount() // Total shipping cost (if available)
+                      .currencyCode() // Currency code for shipping cost
                   }
-                  .fulfillmentStatus() // Added field to fetch order status
+                  .shippingAddress { $0 // Shipping details (if applicable)
+                      .address1()
+                      .city()
+                      .zip()
+                  }
+                  .fulfillmentStatus() // Fulfillment status (e.g., fulfilled, unfulfilled)
                   .lineItems(first: 250) { $0.edges { $0.node { $0
-                      .title()
-                      .quantity()
+                      .title() // Item name
+                      .quantity() // Quantity of the item
                       .variant { $0
                           .id()
-                          .title()
+                          .title() // Variant title (e.g., size, color)
                           .price { $0
-                              .amount()
-                              .currencyCode()
+                              .amount() // Price per item
+                              .currencyCode() // Currency code for price
+                          }
+                          .image { $0 // Image URL for the item
+                              .url()
                           }
                       }
                   }}}
@@ -179,6 +191,8 @@ public class CartManager: ObservableObject {
           }
       }
   }
+
+
 
 
   
