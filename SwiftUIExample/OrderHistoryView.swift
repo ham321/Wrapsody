@@ -4,18 +4,21 @@ import SwiftUI
 struct LineItem: Identifiable {
     let id: String
     let title: String
+    let variantTitle: String  // New property to store the variant title
     let quantity: Int
     let price: String
     let imageUrl: String?
 
-    init(id: String, title: String, quantity: Int, price: Decimal, currencyCode: String, imageUrl: String?) {
+    init(id: String, title: String, variantTitle: String, quantity: Int, price: Decimal, currencyCode: String, imageUrl: String?) {
         self.id = id
         self.title = title
+        self.variantTitle = variantTitle  // Set the variant title
         self.quantity = quantity
         self.price = "$\(Order.formatAmount(price)) \(currencyCode)"
         self.imageUrl = imageUrl
     }
 }
+
 
 // MARK: - Order Model
 struct Order: Identifiable {
@@ -77,50 +80,54 @@ class OrderViewModel: ObservableObject {
         fetchOrders()
     }
 
-    func fetchOrders() {
-        guard let customerAccessToken = UserDefaults.standard.string(forKey: "customerAccessToken") else {
-            print("Customer access token not found.")
-            self.isLoading = false
-            return
-        }
+  func fetchOrders() {
+      guard let customerAccessToken = UserDefaults.standard.string(forKey: "customerAccessToken") else {
+          print("Customer access token not found.")
+          self.isLoading = false
+          return
+      }
 
-        CartManager.shared.fetchPastOrders(customerAccessToken: customerAccessToken) { [weak self] fetchedOrders in
-            guard let self = self else { return }
-            self.isLoading = false
+      CartManager.shared.fetchPastOrders(customerAccessToken: customerAccessToken) { [weak self] fetchedOrders in
+          guard let self = self else { return }
+          self.isLoading = false
 
-            if let fetchedOrders = fetchedOrders {
-                self.orders = fetchedOrders.map { order in
-                    let lineItems = order.lineItems.edges.compactMap { edge in
-                        let node = edge.node
-                        return LineItem(
-                            id: node.variant?.id.rawValue ?? "Unknown ID",
-                            title: node.title,
-                            quantity: Int(node.quantity) ?? 0,
-                            price: node.variant?.price.amount ?? Decimal(0),
-                            currencyCode: node.variant?.price.currencyCode.rawValue ?? "USD",
-                            imageUrl: node.variant?.image?.url.absoluteString
-                        )
-                    }
+          if let fetchedOrders = fetchedOrders {
+              self.orders = fetchedOrders.map { order in
+                  let lineItems = order.lineItems.edges.compactMap { edge in
+                      let node = edge.node
+                      let variantTitle = node.variant?.title ?? "Unknown Variant Title"  // Fetch variant title
 
-                    return Order(
-                        id: UUID(),
-                        date: order.processedAt,
-                        orderId: order.id.rawValue,
-                        orderName: order.name ?? "Unknown Order Number",
-                        totalAmount: order.totalPrice.amount,
-                        subtotalAmount: order.subtotalPrice?.amount ?? Decimal(0),
-                        totalShippingAmount: order.totalShippingPrice.amount,
-                        currencyCode: order.totalPrice.currencyCode.rawValue ?? "USD",
-                        fulfillmentStatus: order.fulfillmentStatus.rawValue ?? "Unknown Status",
-                        lineItems: lineItems
-                    )
-                }
-                self.orders.sort { $0.date > $1.date }
-            } else {
-                print("No orders found or error fetching orders.")
-            }
-        }
-    }
+                      return LineItem(
+                          id: node.variant?.id.rawValue ?? "Unknown ID",
+                          title: node.title,
+                          variantTitle: variantTitle,  // Store the variant title separately
+                          quantity: Int(node.quantity) ?? 0,
+                          price: node.variant?.price.amount ?? Decimal(0),
+                          currencyCode: node.variant?.price.currencyCode.rawValue ?? "USD",
+                          imageUrl: node.variant?.image?.url.absoluteString
+                      )
+                  }
+
+                  return Order(
+                      id: UUID(),
+                      date: order.processedAt,
+                      orderId: order.id.rawValue,
+                      orderName: order.name ?? "Unknown Order Number",
+                      totalAmount: order.totalPrice.amount,
+                      subtotalAmount: order.subtotalPrice?.amount ?? Decimal(0),
+                      totalShippingAmount: order.totalShippingPrice.amount,
+                      currencyCode: order.totalPrice.currencyCode.rawValue ?? "USD",
+                      fulfillmentStatus: order.fulfillmentStatus.rawValue ?? "Unknown Status",
+                      lineItems: lineItems
+                  )
+              }
+              self.orders.sort { $0.date > $1.date }
+          } else {
+              print("No orders found or error fetching orders.")
+          }
+      }
+  }
+
 }
 
 
@@ -192,108 +199,145 @@ struct OrderHistoryView: View {
 
 
 
-
-// MARK: - Order Detail View (Receipt View)
 struct OrderDetailView: View {
     let order: Order
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 16) {
+                // Receipt Title
                 Text("Receipt")
                     .font(.title2)
                     .fontWeight(.bold)
-                    .padding(.top)
+                    .padding(.top, 16)
+                    .foregroundColor(.primary)
 
+                // Order Information
                 HStack {
                     Text("Order Number:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                     Spacer()
                     Text(order.orderName)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
                 }
 
                 HStack {
                     Text("Date:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                     Spacer()
                     Text(order.date, style: .date)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
                 }
 
                 HStack {
                     Text("Status:")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
                     Spacer()
                     Text(order.fulfillmentStatus)
+                        .font(.subheadline)
                         .fontWeight(.semibold)
                         .foregroundColor(.wrapsodyPink)
                 }
 
-                Divider().padding(.vertical, 10)
+                Divider().padding(.vertical, 12)
 
+                // Items Section
                 Text("Items:")
                     .font(.headline)
+                    .fontWeight(.medium)
                     .padding(.bottom, 8)
 
-                ForEach(order.lineItems) { lineItem in
-                    HStack {
-                        // Image on the left with Lazy Loading and caching
-                        if let imageUrl = lineItem.imageUrl, let url = URL(string: imageUrl) {
-                            AsyncImage(url: url) { phase in
-                                switch phase {
-                                case .empty:
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                                        .frame(width: 50, height: 50)
-                                case .success(let image):
-                                    image.resizable()
-                                        .scaledToFit()
-                                        .frame(width: 80, height: 80) // Larger image size
-                                        .cornerRadius(8)
-                                case .failure:
-                                    Image(systemName: "photo")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 80, height: 80) // Larger fallback image size
-                                        .cornerRadius(8)
-                                @unknown default:
-                                    EmptyView()
-                                }
-                            }
-                            .padding(.trailing, 8) // Add padding between image and text
-                        }
+              ForEach(order.lineItems) { lineItem in
+                  HStack(alignment: .top) {
+                      // Image on the left with Lazy Loading and caching
+                      if let imageUrl = lineItem.imageUrl, let url = URL(string: imageUrl) {
+                          AsyncImage(url: url) { phase in
+                              switch phase {
+                              case .empty:
+                                  ProgressView()
+                                      .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                                      .frame(width: 60, height: 60)
+                              case .success(let image):
+                                  image.resizable()
+                                      .scaledToFit()
+                                      .frame(width: 80, height: 80)
+                                      .cornerRadius(8)
+                              case .failure:
+                                  Image(systemName: "photo")
+                                      .resizable()
+                                      .scaledToFit()
+                                      .frame(width: 80, height: 80)
+                                      .cornerRadius(8)
+                              @unknown default:
+                                  EmptyView()
+                              }
+                          }
+                          .padding(.trailing, 12)
+                      }
 
-                        // Title and Quantity next to the image
-                        VStack(alignment: .leading) {
-                            Text(lineItem.title)
-                                .font(.body)
-                                .foregroundColor(.primary)
-                            Text("Qty: \(lineItem.quantity)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
+                      // Title and Variant Title
+                      VStack(alignment: .leading) {
+                          // Main title with a bolder font style
+                          Text(lineItem.title)
+                              .font(.body)
+                              .fontWeight(.semibold)
+                              .foregroundColor(.primary)
 
-                        // Price (Prefixed with dollar sign)
-                        Text("\(lineItem.price)")
-                            .font(.body)
-                            .foregroundColor(.primary)
-                    }
-                    Divider()
-                }
+                          // Variant title as a sub-headline with a lighter color, stretched to the right
+                          Text(lineItem.variantTitle)
+                              .font(.subheadline)
+                              .fontWeight(.regular)
+                              .foregroundColor(.secondary)
+                              .padding(.top, 2)
+                              .frame(maxWidth: .infinity, alignment: .leading) // Make variant title stretch
+                      }
 
-                // Pricing Details (Tax section removed)
+                      Spacer()
+
+                      // Price and Quantity below each other in a VStack
+                      VStack(alignment: .trailing) {
+                          // Price (Prefixed with dollar sign)
+                          Text("\(lineItem.price)")
+                              .font(.body)
+                              .fontWeight(.semibold)
+                              .foregroundColor(.primary)
+
+                          // Quantity with a subtle appearance
+                          Text("Qty: \(lineItem.quantity)")
+                              .font(.caption)
+                              .foregroundColor(.secondary)
+                      }
+                  }
+                  Divider().padding(.vertical, 8)
+              }
+
+
+                // Pricing Details
                 VStack(alignment: .leading, spacing: 12) {
                     HStack {
                         Text("Subtotal:")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                         Spacer()
                         Text(order.subtotalAmount.split(separator: " ").first ?? "")
                             .fontWeight(.semibold)
+                            .foregroundColor(.primary)
                     }
 
                     HStack {
                         Text("Shipping:")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                         Spacer()
-                        Text(order.totalShippingAmount.split(separator: " ").first ?? "")
+                        let shippingAmount = order.totalShippingAmount.split(separator: " ").first ?? ""
+                        Text(shippingAmount == "$0.00" ? "Free" : shippingAmount)
                             .fontWeight(.semibold)
+                            .foregroundColor(.primary)
                     }
 
                     Divider().padding(.vertical, 10)
@@ -310,12 +354,14 @@ struct OrderDetailView: View {
             }
             .padding()
             .background(Color(UIColor.systemBackground))
-            .cornerRadius(10)
-            .padding()
+            .cornerRadius(12)
+            .padding([.top, .horizontal])
         }
         .navigationTitle("Order Details")
     }
 }
+
+
 
 struct CachedImageView: View {
     let url: URL
