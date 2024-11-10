@@ -23,6 +23,7 @@ struct ProfileView: View {
         Text("Profile")
           .font(.largeTitle)
           .fontWeight(.bold)
+          .foregroundColor(.wrapsodyGold)
           .padding(.leading, 10)
         
         Spacer()
@@ -30,7 +31,7 @@ struct ProfileView: View {
         NavigationLink(destination: SettingsView()) {
           Image(systemName: "gear")
             .font(.title)
-            .foregroundColor(.black)
+            .foregroundColor(.wrapsodyGreen)
             .padding(.trailing, 10)
         }
       }
@@ -57,7 +58,7 @@ struct ProfileView: View {
       HStack {
         Button(action: { showConfirmationAlert = true }) {
           Text(isDeletingAccount ? "Deleting account..." : "Delete Account")
-            .foregroundColor(.red)
+            .foregroundColor(.wrapsodyPink)
             .font(.headline)
             .frame(maxWidth: .infinity)
             .padding()
@@ -75,7 +76,7 @@ struct ProfileView: View {
             .font(.headline)
             .frame(maxWidth: .infinity)
             .padding()
-            .background(Color.red)
+            .background(Color.wrapsodyPink)
             .cornerRadius(12)
         }
         .disabled(isLoggingOut)

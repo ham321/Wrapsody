@@ -194,46 +194,53 @@ struct CatalogView: View {
                                 let selectedVariant = product.variants.nodes.first { $0.id == selectedVariantId }
                                 let price = selectedVariant?.price.formattedString() ?? "Out of Stock"
 
-                                Button(action: {
-                                    isAddingToCart = true
-                                    // Allow adding to cart regardless of stock status
-                                    cartManager.addItem(variant: selectedVariantId!) { cart in
-                                        isAddingToCart = false
-                                        checkoutURL = cart?.checkoutUrl
-                                    }
-                                }, label: {
-                                    if selectedVariant?.availableForSale == false {
-                                        Text("Out of Stock - \(price)")
-                                            .font(.headline)
-                                            .padding()
-                                            .frame(maxWidth: geometry.size.width * 0.8) // Dynamic max width
-                                            .background(Color.gray)
-                                            .foregroundColor(.white)
-                                            .cornerRadius(10)
-                                            .disabled(false) // Enable button for selection
-                                    } else {
-                                        if isAddingToCart {
-                                            ProgressView()
-                                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                                .padding()
-                                                .frame(maxWidth: geometry.size.width * 0.8) // Dynamic max width
-                                                .background(Color.wrapsodyBlue)
-                                                .foregroundColor(.white)
-                                                .cornerRadius(10)
-                                        } else {
-                                            Text("Add to cart - \(price)")
-                                                .font(.headline)
-                                                .padding()
-                                                .frame(maxWidth: geometry.size.width * 0.8) // Dynamic max width
-                                                .background(Color.wrapsodyBlue)
-                                                .foregroundColor(.white)
-                                                .cornerRadius(10)
-                                        }
-                                    }
-                                })
-                                .accessibilityIdentifier("addToCartButton")
-                                .disabled(false) // Enable button regardless of stock status
-                                .padding()
+                              Button(action: {
+                                  if let selectedVariant = product.variants.nodes.first(where: { $0.id == selectedVariantId }), selectedVariant.availableForSale {
+                                      isAddingToCart = true
+                                      cartManager.addItem(variant: selectedVariantId!) { cart in
+                                          isAddingToCart = false
+                                          checkoutURL = cart?.checkoutUrl
+                                      }
+                                  }
+                              }, label: {
+                                  let selectedVariant = product.variants.nodes.first { $0.id == selectedVariantId }
+                                  let price = selectedVariant?.price.formattedString() ?? "Out of Stock"
+
+                                  if selectedVariant?.availableForSale == false {
+                                      // If the item is out of stock, show an "Out of Stock" button
+                                      Text("Out of Stock - \(price)")
+                                          .font(.headline)
+                                          .padding()
+                                          .frame(maxWidth: geometry.size.width * 0.8) // Dynamic max width
+                                          .background(Color.gray) // Gray background to indicate out of stock
+                                          .foregroundColor(.white)
+                                          .cornerRadius(10)
+                                          .disabled(true) // Disable the button
+                                  } else {
+                                      if isAddingToCart {
+                                          ProgressView()
+                                              .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                              .padding()
+                                              .frame(maxWidth: geometry.size.width * 0.8)
+                                              .background(Color.wrapsodyBlue)
+                                              .foregroundColor(.white)
+                                              .cornerRadius(10)
+                                      } else {
+                                          // Show the "Add to Cart" button when in stock
+                                          Text("Add to cart - \(price)")
+                                              .font(.headline)
+                                              .padding()
+                                              .frame(maxWidth: geometry.size.width * 0.8)
+                                              .background(Color.wrapsodyBlue)
+                                              .foregroundColor(.white)
+                                              .cornerRadius(10)
+                                      }
+                                  }
+                              })
+                              .accessibilityIdentifier("addToCartButton")
+                              .disabled(selectedVariant?.availableForSale == false) // Disable button if out of stock
+                              .padding()
+
 
                                 .sheet(isPresented: $isShowingCart) {
                                     NavigationView {

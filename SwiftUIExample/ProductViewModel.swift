@@ -459,6 +459,11 @@ extension Storefront.CartQuery {
                                 .amount()
                                 .currencyCode()
                             }
+                            .image { // Fetching the image for each variant
+                                $0
+                                    .id()
+                                    .url() // Getting the URL for the image
+                            }
                             .product { $0
                                 .id() // Query the product ID if needed
                                 .title()

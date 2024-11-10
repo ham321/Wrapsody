@@ -24,6 +24,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 import Buy
 import SwiftUI
 import ShopifyCheckoutSheetKit
+import SDWebImageSwiftUI
 
 struct CartView: View {
     @State var cartCompleted: Bool = false
@@ -41,7 +42,7 @@ struct CartView: View {
         // Check if there are items in the cart
         if let lines = cartManager.cart?.lines.nodes, !lines.isEmpty {
             ScrollView {
-                VStack {
+                VStack(spacing: 20) { // Added spacing between items
                     CartLines(lines: lines, isBusy: $isBusy, cartManager: cartManager, checkoutURL: $checkoutURL)
 
                     Spacer()
@@ -67,7 +68,7 @@ struct CartView: View {
                         .sheet(isPresented: $isShowingCheckout) {
                             if let url = checkoutURL {
                                 CheckoutSheet(checkout: url)
-                                    .title("SwiftUI")
+                                    .title("Checkout")
                                     .colorScheme(.automatic)
                                     .tintColor(UIColor(red: 0.33, green: 0.20, blue: 0.92, alpha: 1.00))
                                     .onCancel {
@@ -122,6 +123,7 @@ struct CartView: View {
     }
 }
 
+
 struct CartLines: View {
     var lines: [BaseCartLine]
     @State var updating: GraphQL.ID? {
@@ -140,20 +142,29 @@ struct CartLines: View {
     var body: some View {
         ForEach(lines, id: \.id) { node in
             let variant = node.merchandise as? Storefront.ProductVariant
-            
+            let imageUrl = variant?.image?.url ?? variant?.product.featuredImage?.url // Fallback to featured image if variant image is nil
+
             VStack(spacing: 15) {
                 HStack {
-                    if let imageUrl = variant?.product.featuredImage?.url {
-                        AsyncImage(url: imageUrl) { image in
-                            image.image?
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 80, height: 80)
-                                .cornerRadius(8)
-                                .clipped()
-                        }
-                        .frame(width: 80, height: 80)
-                        .cornerRadius(8)
+                    if let imageUrl = imageUrl {
+                        WebImage(url: imageUrl)
+                            .onSuccess { image, data, cacheType in
+                                // Image successfully loaded
+                            }
+                            .onFailure { error in
+                                // Handle the error here if needed
+                            }
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 80, height: 80)
+                            .cornerRadius(8)
+                            .clipped()
+                            .overlay(
+                                ProgressView()
+                                    .progressViewStyle(CircularProgressViewStyle())
+                                    .scaleEffect(0.5)
+                                    .opacity(imageUrl == nil ? 1 : 0) // Only show progress if no image URL
+                            )
                     } else {
                         Rectangle()
                             .foregroundColor(.gray)
@@ -247,8 +258,6 @@ struct CartLines: View {
                     .padding(.bottom, 0)
                 }
                 .padding(.bottom, 10)
-
-
             }
             .padding([.leading, .trailing], 10)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -286,9 +295,9 @@ struct CartLines: View {
             checkoutURL = cart?.checkoutUrl
         }
     }
-
-    
 }
+
+
 
 
 

@@ -41,6 +41,7 @@ class CacheManager {
 // MARK: - OrderViewModel
 class OrderViewModel: ObservableObject {
     @Published var orders: [Order] = []
+    @Published var isLoading: Bool = true  // Track loading state
 
     init() {
         fetchOrders()
@@ -49,11 +50,15 @@ class OrderViewModel: ObservableObject {
     func fetchOrders() {
         guard let customerAccessToken = UserDefaults.standard.string(forKey: "customerAccessToken") else {
             print("Customer access token not found.")
+            self.isLoading = false
             return
         }
 
         CartManager.shared.fetchPastOrders(customerAccessToken: customerAccessToken) { [weak self] fetchedOrders in
             guard let self = self else { return }
+
+            // Set loading to false once data is fetched or on error
+            self.isLoading = false
 
             if let fetchedOrders = fetchedOrders {
                 self.orders = fetchedOrders.map { order in
@@ -88,12 +93,19 @@ class OrderViewModel: ObservableObject {
     }
 }
 
+
 struct OrderHistoryView: View {
     @StateObject private var viewModel = OrderViewModel()
 
     var body: some View {
         VStack {
-            if viewModel.orders.isEmpty {
+            if viewModel.isLoading {
+                // Show loading indicator while data is being fetched
+                ProgressView("Loading Orders...")
+                    .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                    .padding()
+            } else if viewModel.orders.isEmpty {
+                // Show message if no orders after loading
                 Text("No orders yet. Go to store to place an order.")
                     .font(.title2)
                     .fontWeight(.bold)
@@ -145,6 +157,7 @@ struct OrderHistoryView: View {
         }
     }
 }
+
 
 
 
